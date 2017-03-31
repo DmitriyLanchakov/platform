@@ -190,10 +190,12 @@ check-server-style: govet
 
 check-style: check-client-style check-server-style
 
-test-te: start-docker prepare-enterprise
+do-cover-file:
+	@echo "mode: count" > cover.out
+
+test-te: start-docker prepare-enterprise do-cover-file
 	@echo Testing TE
 
-	@echo "mode: count" > cover.out
 
 	@echo "Packages to test: "$(TE_PACKAGES)
 
@@ -206,7 +208,7 @@ test-te: start-docker prepare-enterprise
 		fi; \
 	done
 
-test-ee: start-docker prepare-enterprise
+test-ee: start-docker prepare-enterprise do-cover-file
 	@echo Testing EE
 
 ifeq ($(BUILD_ENTERPRISE_READY),true)
