@@ -316,14 +316,14 @@ func addTeamMember(c *Context, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		member, err = app.AddTeamMember(member.TeamId, member.UserId, c.GetSiteURL())
+		member, err = app.AddTeamMember(member.TeamId, member.UserId)
 	} else if len(hash) > 0 && len(data) > 0 {
-		member, err = app.AddTeamMemberByHash(c.Session.UserId, hash, data, c.GetSiteURL())
+		member, err = app.AddTeamMemberByHash(c.Session.UserId, hash, data)
 		if err != nil {
 			err = model.NewAppError("addTeamMember", "api.team.add_user_to_team.invalid_data.app_error", nil, "", http.StatusNotFound)
 		}
 	} else if len(inviteId) > 0 {
-		member, err = app.AddTeamMemberByInviteId(inviteId, c.Session.UserId, c.GetSiteURL())
+		member, err = app.AddTeamMemberByInviteId(inviteId, c.Session.UserId)
 		if err != nil {
 			err = model.NewAppError("addTeamMember", "api.team.add_user_to_team.invalid_invite_id.app_error", nil, "", http.StatusNotFound)
 		}

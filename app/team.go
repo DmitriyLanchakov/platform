@@ -415,8 +415,8 @@ func GetTeamMembersByIds(teamId string, userIds []string) ([]*model.TeamMember, 
 	}
 }
 
-func AddTeamMember(teamId, userId, siteURL string) (*model.TeamMember, *model.AppError) {
-	if _, err := AddUserToTeam(teamId, userId, siteURL); err != nil {
+func AddTeamMember(teamId, userId string) (*model.TeamMember, *model.AppError) {
+	if _, err := AddUserToTeam(teamId, userId); err != nil {
 		return nil, err
 	}
 
@@ -427,11 +427,11 @@ func AddTeamMember(teamId, userId, siteURL string) (*model.TeamMember, *model.Ap
 	}
 }
 
-func AddTeamMemberByHash(userId, hash, data, siteURL string) (*model.TeamMember, *model.AppError) {
+func AddTeamMemberByHash(userId, hash, data string) (*model.TeamMember, *model.AppError) {
 	var team *model.Team
 	var err *model.AppError
 
-	if team, err = AddUserToTeamByHash(userId, hash, data, siteURL); err != nil {
+	if team, err = AddUserToTeamByHash(userId, hash, data); err != nil {
 		return nil, err
 	}
 
@@ -442,11 +442,11 @@ func AddTeamMemberByHash(userId, hash, data, siteURL string) (*model.TeamMember,
 	}
 }
 
-func AddTeamMemberByInviteId(inviteId, userId, siteURL string) (*model.TeamMember, *model.AppError) {
+func AddTeamMemberByInviteId(inviteId, userId string) (*model.TeamMember, *model.AppError) {
 	var team *model.Team
 	var err *model.AppError
 
-	if team, err = AddUserToTeamByInviteId(inviteId, userId, siteURL); err != nil {
+	if team, err = AddUserToTeamByInviteId(inviteId, userId); err != nil {
 		return nil, err
 	}
 
@@ -564,7 +564,7 @@ func LeaveTeam(team *model.Team, user *model.User) *model.AppError {
 	return nil
 }
 
-func InviteNewUsersToTeam(emailList []string, teamId, senderId, siteURL string) *model.AppError {
+func InviteNewUsersToTeam(emailList []string, teamId, senderId string) *model.AppError {
 	if len(emailList) == 0 {
 		err := model.NewLocAppError("InviteNewUsersToTeam", "api.team.invite_members.no_one.app_error", nil, "")
 		err.StatusCode = http.StatusBadRequest
@@ -588,7 +588,7 @@ func InviteNewUsersToTeam(emailList []string, teamId, senderId, siteURL string) 
 		user = result.Data.(*model.User)
 	}
 
-	SendInviteEmails(team, user.GetDisplayName(), emailList, siteURL)
+	SendInviteEmails(team, user.GetDisplayName(), emailList, utils.GetSiteURL())
 
 	return nil
 }

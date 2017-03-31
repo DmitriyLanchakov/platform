@@ -71,11 +71,11 @@ func createUser(c *Context, w http.ResponseWriter, r *http.Request) {
 	if len(hash) > 0 {
 		ruser, err = app.CreateUserWithHash(user, hash, r.URL.Query().Get("d"))
 	} else if len(inviteId) > 0 {
-		ruser, err = app.CreateUserWithInviteId(user, inviteId, c.GetSiteURL())
+		ruser, err = app.CreateUserWithInviteId(user, inviteId)
 	} else if c.IsSystemAdmin() {
-		ruser, err = app.CreateUserAsAdmin(user, c.GetSiteURL())
+		ruser, err = app.CreateUserAsAdmin(user)
 	} else {
-		ruser, err = app.CreateUserFromSignup(user, c.GetSiteURL())
+		ruser, err = app.CreateUserFromSignup(user)
 	}
 
 	if err != nil {
@@ -488,7 +488,7 @@ func updateUser(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if ruser, err := app.UpdateUserAsUser(user, c.GetSiteURL(), c.IsSystemAdmin()); err != nil {
+	if ruser, err := app.UpdateUserAsUser(user, c.IsSystemAdmin()); err != nil {
 		c.Err = err
 		return
 	} else {
@@ -514,7 +514,7 @@ func patchUser(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if ruser, err := app.PatchUser(c.Params.UserId, patch, c.GetSiteURL(), c.IsSystemAdmin()); err != nil {
+	if ruser, err := app.PatchUser(c.Params.UserId, patch, c.IsSystemAdmin()); err != nil {
 		c.Err = err
 		return
 	} else {
@@ -635,7 +635,7 @@ func updateUserMfa(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	c.LogAudit("attempt")
 
-	if err := app.UpdateMfa(activate, c.Params.UserId, code, c.GetSiteURL()); err != nil {
+	if err := app.UpdateMfa(activate, c.Params.UserId, code); err != nil {
 		c.Err = err
 		return
 	}
@@ -687,9 +687,9 @@ func updatePassword(c *Context, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = app.UpdatePasswordAsUser(c.Params.UserId, currentPassword, newPassword, c.GetSiteURL())
+		err = app.UpdatePasswordAsUser(c.Params.UserId, currentPassword, newPassword)
 	} else if app.SessionHasPermissionTo(c.Session, model.PERMISSION_MANAGE_SYSTEM) {
-		err = app.UpdatePasswordByUserIdSendEmail(c.Params.UserId, newPassword, c.T("api.user.reset_password.method"), c.GetSiteURL())
+		err = app.UpdatePasswordByUserIdSendEmail(c.Params.UserId, newPassword, c.T("api.user.reset_password.method"))
 	} else {
 		err = model.NewAppError("updatePassword", "api.user.update_password.context.app_error", nil, "", http.StatusForbidden)
 	}
@@ -717,7 +717,7 @@ func resetPassword(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	c.LogAudit("attempt - code=" + code)
 
-	if err := app.ResetPasswordFromCode(code, newPassword, c.GetSiteURL()); err != nil {
+	if err := app.ResetPasswordFromCode(code, newPassword); err != nil {
 		c.LogAudit("fail - code=" + code)
 		c.Err = err
 		return
@@ -737,7 +737,7 @@ func sendPasswordReset(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if sent, err := app.SendPasswordReset(email, c.GetSiteURL()); err != nil {
+	if sent, err := app.SendPasswordReset(email, utils.GetSiteURL()); err != nil {
 		c.Err = err
 		return
 	} else if sent {
@@ -969,9 +969,9 @@ func sendVerificationEmail(c *Context, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err := app.GetStatus(user.Id); err != nil {
-		go app.SendVerifyEmail(user.Id, user.Email, user.Locale, c.GetSiteURL())
+		go app.SendVerifyEmail(user.Id, user.Email, user.Locale, utils.GetSiteURL())
 	} else {
-		go app.SendEmailChangeVerifyEmail(user.Id, user.Email, user.Locale, c.GetSiteURL())
+		go app.SendEmailChangeVerifyEmail(user.Id, user.Email, user.Locale, utils.GetSiteURL())
 	}
 
 	ReturnStatusOK(w)
